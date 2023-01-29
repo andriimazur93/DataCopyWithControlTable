@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  jupyter:
+    build:
+      context: ./jupyter
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/home/jovyan/
+    ports:
+      - 8888:8888
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ./db/:/docker-entrypoint-initdb.d/
+    healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+volumes:
+  db:
+    driver: local
